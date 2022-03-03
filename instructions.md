@@ -3,30 +3,30 @@
 1. We have 3 parties
     * Do we need 3 TOZNY clients?
         * Probably
-    1. Judge
-    2. Alice
+    1. Clarence
+    2. Alicia
     3. Bruce
 
 
-## Alice
+## Alicia
 * Can submit a move
     * Must be encrypted. 
     * Only decrypted by:
-        * Judge
-        * Alice
+        * Clarence
+        * Alicia
 ## Bruce
 * Can submit a move
     * Must be encrypted.
     * Only decrypted by:
-        * Judge
-        * __ALCIE__
+        * Clarence
+        * __ALICIA__
             * Do we not want Bruce to review their move after submission?
-## Judge
+## Clarence
 * Can decrypt 
 * Can declare winner
     * Must be encrypted.
     * Only decrypted by:
-        * Alice
+        * Alicia
         * Bruce
 ---
 ## Solution

@@ -2,26 +2,102 @@
 # Date: 03/01/22
 
 import argparse
-from clients import Clients
-
+from clients import Clients,Moves
+from member_handler import Handler
+import os
+# import e3db 
+    
 def check_option_is_valid(option:str, options:dict):
     keys = list(options.keys())
     # avoid casing issues, lower everything
+    print(option)
     option = option.lower()
-    assert option in keys, f'Invalid program input. input: {option} possible options: {keys}'
+    if not option in keys:
+        print(f'Invalid program input. input: {option} possible options: {keys}')
     return option in keys
+
+def get_tozny_client_config(token=None,client=None):
+    '''
+        loads or creates configs
+        param
+        -----
+            * token: token used to register client (in case it is new)
+            * client: client's name to use when registering client (in case it is new)
+        returns
+        -----
+            * config obj
+    '''
+    # try loading client from disk
+    try:
+        config = e3db.Config.load()
+        print('Loaded configs from disk successfully')
+    except FileNotFoundError:
+        # assert we have needed params to register client
+        assert not token is None, 'Token parameter is missing (None)! Needed for registration.'  
+        assert not client is None, 'Client parameter is missing (None)! Needed for registration.'
+        # generate pair
+        public_key,private_key = e3db.Client.generate_keypair()
+
+        # register client
+        client_info = e3db.Client.register(token, client, public_key) # trying w/o creating client via dashboard (to see value)
+
+        config = e3db.Config(
+            client_info.client_id,
+            client_info.api_key_id,
+            client_info.api_secret,
+            public_key, 
+            private_key
+        )
+        # write to disk for future use
+        config.write()
+        print('Generate new configs successfully')
+    return config
 
 
 def main():
     # specify args args
     parser = argparse.ArgumentParser(description='Rock, Paper, Scissors Game.')
-    parser.add_argument('--client', type=str, help='Clients for this game: <judge | alice | bruce>',default=None)
+    parser.add_argument('--client', type=str, help='Clients for this game: <judge | alice | bruce>',default=None,required=True)
+    parser.add_argument('--creds', type=str, help='Relative path to creds file',default=None,required=True)
+    # it is possible for a client not to make a move (check the game winner or any of the judge's actions)
+    # so it doesn't need to be a required program argument
+    parser.add_argument('--move', type=str, help='Make a move: <rock | paper | scissors>',default=None,required=False)
+    
     # parse args
     args = parser.parse_args()
     client = args.client
-    possible_clients = Clients.__members__
+    move = args.move
+    creds_path = args.creds
 
-    check_option_is_valid(client,possible_clients) # always returns true if execution continues
+    # grab possible options (used for use input checking)
+    possible_clients = Clients.__members__
+    possible_moves = Moves.__members__
+
+    # ------------------- validate input ----------------- 
+    # creds is not checked (could be validated by checking whether client's name is in the file path)
+    # but this relies on naming the creds files such that they indicate which member keys belong to --> not sure its good
+    if not check_option_is_valid(client,possible_clients) or not check_option_is_valid(move,possible_moves): 
+        exit()
+    # ----------------------------------------------------
+    
+
+
+    # ------------- grab token from environment ----------
+    key = 'TOZNY_TOKEN'
+    token = os.getenv(key)
+    # ----------------------------------------------------
+    handler = Handler(creds_path)
+    e3db_client = handler.get_client()
+    print(e3db_client)
+    # c = e3db.Client(config)
+    # instantiate client to communicate to TozStore 
+    # if this fails, halt execution.
+    # how to avoid other players making moves if this doesn't work?
+    # config.Client(config)
+
+
+
+    
     return
 
 if __name__=="__main__":
