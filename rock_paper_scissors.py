@@ -91,12 +91,11 @@ def main():
     handler = Handler(clients.retrieve_client_creds(client))
 
     # handler.submit_move(move,recipients=[ clients.retrieve_client_creds('clarence') ])
-    # [ print(i) for i in handler.retrieve_all_records()]
-    # handler.remove_all_records()
-    handler.search_records()
 
-    # e3db_client = handler.get_client()
-    # handler.submit_move(move)
+    # handler.remove_all_records(shared_with=[ clients.retrieve_client_creds('clarence') ])
+    
+    # handler.search_records()
+
 
 
     

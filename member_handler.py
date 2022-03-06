@@ -36,7 +36,7 @@ class Handler:
 
     def submit_move(self,move: str, recipients: list, max_views = 3, expr:int = 3):
         '''
-            Submits a move (encrypted) to each of the recipients as a note.
+            Submits a move to each of the recipients as a note.
 
             Param
             ------
@@ -72,27 +72,39 @@ class Handler:
 
         return 
 
-    def retrieve_all_records(self):
-        results = self.client.query()
-        records = []
-        for i in results:
-            if 'client_id' in i.get_data():
-                continue
-            r = i.get_data()
-            r['record_id'] = i.get_meta().record_id
-            r['version'] = i.get_meta().version
-            records.append(r)
-        return records
+    
     def search_records(self):
+        '''
+            Wrapper around search to retrieve all records (belong to or shared with) under client
+            param
+            -----
+                * None
+            Returns
+            ------
+                * All records (created or shared with) for the client
+        '''
+        result = self.client.search(Types.Search())
+        records = []
+        for record in result.records:
+            print()
+            records.append(record)
+        return records
 
-        query = Types.Search(include_all_writers=True,include_data=True).match(condition='AND',record_types=['move'])
-        result = self.client.search(query)
-        for i in result.records:
-            print(i.to_json())
-        return
-
-    def remove_all_records(self):
+    def remove_all_records(self,shared_with: list=[]):
+        '''
+            Revokes access to all records of type 'move' and deletes records created by client
+            param
+            -------
+                * shared_with (list): (optional) list of clients to ensure access is revoked from before deletion of records
+                    * Note: would be nice if each record contains info about parties that share the record with client
+            Returns
+            -------  
+                * None
+        '''
         records = self.retrieve_all_records()
+        # revoke access from all parties the record is shared with
+        for party in shared_with:
+            self.client.revoke('move',party['client_id'])
         for rec in records:
             self.client.delete(rec['record_id'],version=rec['version'])
         return
