@@ -58,7 +58,7 @@ def main():
     # specify args args
     parser = argparse.ArgumentParser(description='Rock, Paper, Scissors Game.')
     parser.add_argument('--client', type=str, help='Clients for this game: <judge | alice | bruce>',default=None,required=True)
-    parser.add_argument('--creds', type=str, help='Relative path to creds file',default=None,required=True)
+    parser.add_argument('--creds', type=str, help='Relative path to creds directory (directory path with name)',default=None,required=True)
     # it is possible for a client not to make a move (check the game winner or any of the judge's actions)
     # so it doesn't need to be a required program argument
     parser.add_argument('--move', type=str, help='Make a move: <rock | paper | scissors>',default=None,required=False)
@@ -70,7 +70,8 @@ def main():
     creds_path = args.creds
 
     # grab possible options (used for use input checking)
-    possible_clients = Clients.__members__
+    clients = Clients(creds_path=creds_path)
+    possible_clients = clients.members
     possible_moves = Moves.__members__
 
     # ------------------- validate input ----------------- 
@@ -83,18 +84,19 @@ def main():
 
 
     # ------------- grab token from environment ----------
-    key = 'TOZNY_TOKEN'
-    token = os.getenv(key)
+    # key = 'TOZNY_TOKEN'
+    # token = os.getenv(key)
     # ----------------------------------------------------
-    handler = Handler(creds_path)
-    e3db_client = handler.get_client()
-    print(e3db_client)
-    # c = e3db.Client(config)
-    # instantiate client to communicate to TozStore 
-    # if this fails, halt execution.
-    # how to avoid other players making moves if this doesn't work?
-    # config.Client(config)
+    
+    handler = Handler(clients.retrieve_client_creds(client))
 
+    # handler.submit_move(move,recipients=[ clients.retrieve_client_creds('clarence') ])
+    # [ print(i) for i in handler.retrieve_all_records()]
+    # handler.remove_all_records()
+    handler.search_records()
+
+    # e3db_client = handler.get_client()
+    # handler.submit_move(move)
 
 
     
