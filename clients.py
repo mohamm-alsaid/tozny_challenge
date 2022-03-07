@@ -3,7 +3,7 @@ import json, sys
 class AllClients(Enum):
     '''
         Enum for the different possible clients. 
-        Might come in handy later
+        Might come in handy later.
     '''
     alicia = 0
     bruce = 1
@@ -22,10 +22,13 @@ class Clients:
     def __init__(self,creds_path='./'):
         '''
         Idea: represents a single handler for different players
-        params
+        Params
         ------
-        creds_path : path where credentials are stored for all clients involved
+            * creds_path : path where credentials are stored for all clients involved
                     * possible members: Alicia, Bruce, Clarence
+        Returns
+        ------
+            * None
         '''
         self.all_clients = AllClients.__members__
         self.members = {}

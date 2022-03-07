@@ -59,6 +59,47 @@ def reset_game(clients):
         handler = Handler(clients.retrieve_client_creds(client))
         handler.remove_all_records(shared_with=[clients.members['clarence']])
 
+def display_records(handler):
+    records = handler.search_records()
+    submitted_moves = []
+    if len(records) == 0:
+        print('No records to display.')
+
+    for r in records:
+        writer = 'self' if handler.client.client_id == r['meta']['writer_id'] else r['meta']['writer_id']
+        move = r['data']['move']
+        print(f"({writer}) submitted:\t{move}")
+        submitted_moves.append((writer,move))
+    return submitted_moves
+def declare_winner(moves):
+    '''
+        Uses the submmited moves to decide who won the round. 
+        Note: it uses the first submitted moves from each player ONLY
+        
+        Param
+        ------
+            * moves: a list of tuples (writer,move) of submitted moves
+        Return
+        ------
+            * ID of round winner
+    '''
+    moves_dict = {k:v for k,v in moves}
+    
+    # assume draw before starting
+    winner = 'draw'     
+    # only grab first two (there won't be any more since ID will be overwritten in case of collision)
+    k1,k2 = list(moves_dict.keys())[:2]
+    v1,v2 = Moves[moves_dict[k1]].value,Moves[moves_dict[k2]].value
+    # draw case (not necessary but for readability)
+    if v1==v2:
+        return (winner,moves_dict[k1]) # both moves are the same
+    else:
+        # pick winner
+        if v1 > v2 and (v1-v2) <= 1:
+            winner = k1
+        else:
+            winner = k2 
+    return (winner,moves_dict[winner])
 def main():
     # specify args args
     parser = argparse.ArgumentParser(description='Rock, Paper, Scissors Game.')
@@ -66,6 +107,7 @@ def main():
     parser.add_argument('--creds', type=str, help='Relative path to creds directory (directory path with name)',default=None,required=True)
     parser.add_argument('--reset', type=bool, help='reset game (deletes all records of all previous rounds)',default=False)
     parser.add_argument('--display', type=bool, help='displays all records (written by an shared with) client',default=False)
+    parser.add_argument('--declare', type=bool, help='Declare winner for round (only Clarence)',default=False)
     # it is possible for a client not to make a move (check the game winner or any of the judge's actions)
     # so it doesn't need to be a required program argument
     parser.add_argument('--move', type=str, help='Make a move: <rock | paper | scissors>',default=None,required=False)
@@ -77,6 +119,7 @@ def main():
     creds_path = args.creds
     reset = args.reset
     display = args.display
+    declare = args.declare
 
     # grab possible options (used for use input checking)
     clients = Clients(creds_path=creds_path)
@@ -94,7 +137,8 @@ def main():
 
     # Validate move option (will short circuit if move is NoneType)
     if not move is None:
-        check_option_is_valid(move,possible_moves)
+        if not check_option_is_valid(move,possible_moves):
+            exit()
 
     # ----------------------------------------------------
     
@@ -115,13 +159,20 @@ def main():
             handler.submit_move(move,recipients=[ clients.retrieve_client_creds('clarence') ])
 
     if display:
-        records = handler.search_records()
-        if len(records) == 0:
-            print('No records to display.')
+        display_records(handler)
 
-        for r in records:
-            writer = 'self' if handler.client.client_id == r['meta']['writer_id'] else r['meta']['writer_id']
-            print(f"({writer}) submitted:\t{r['data']['move']}")
+    if declare:
+        if not client == 'clarence':
+            print(f"{client} not allowed to declare winner!")
+        else:
+            moves = display_records(handler)
+            # print('---->',set(map(lambda x: x[0],moves)))
+            # assert there are enough moves and each player has submitted a move 
+            if len(moves) > 1 and len(set(map(lambda x: x[0],moves)))>1:
+                winner = declare_winner(moves)
+                print('winner: ',winner)
+            else:
+                print("Not enough moves from all players")
 
     # It is possible for a client to submit a move
     if reset:
