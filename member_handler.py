@@ -19,22 +19,8 @@ class Handler:
         # use configs to create client
         self.client = e3db.Client(self.creds)
         return
-    def get_client(self):
-        '''
-            Uses credentials to create a client object using creds as configs.
-            Param
-            --------
-            Args: none
-            Returns: Client (e3db client object)   
-        '''
-        return self.client
-    def get_client_id(self):
-        '''
-            Returns clients ids. Used primarily for sharing purposes (between players & the judge).
-        '''
-        return self.client.client_id
-
-    def submit_move(self,move: str, recipients: list, max_views = 3, expr:int = 3):
+    
+    def submit_move(self,move: str, recipients: list):
         '''
             Submits a move to each of the recipients as a note.
 
@@ -47,35 +33,30 @@ class Handler:
             
             Returns 
             -------
-                * Status of operation (bool). True if submission was sucessful, false otherwise. 
+                * None. 
         '''
         # create record of move 
-        record = {"data":move}
-        
-        
-        writer_id = self.client.client_id # not needed
+        data = {"move":move}
 
-        # write record to server
-        result = self.client.write(data=record,record_type='move')
-
-        record_id = result.get_meta().record_id # not needed
-
-        # share record with recipients (try to if not shared previously)
+        # # share record with recipients (try to if not shared previously)
         for recipient in recipients:
             print(f"sharing record with {recipient['client_id']}....")
 
             try:
                 # share with client
-                self.client.share('move',recipient['client_id'])
-            except Exception as e:
-                print(e)
+                self.client.share(record_type='move',reader_id=recipient['client_id'])
+            except e3db.exceptions.APIError as e:
+                print('record type was already shared')
+        
+        # write record to server
+        result = self.client.write(data=data,record_type='move')
+        print('records was written to server successfully')
+        
+        return  
 
-        return 
-
-    
     def search_records(self):
         '''
-            Wrapper around search to retrieve all records (belong to or shared with) under client
+            Wrapper around search to retrieve all records (belonging to or shared with) the client
             param
             -----
                 * None
@@ -83,11 +64,12 @@ class Handler:
             ------
                 * All records (created or shared with) for the client
         '''
-        result = self.client.search(Types.Search())
+
+        # include all writers is crucial here. Without it, the server only returns records belonging to current client (matching client_id)
+        result = self.client.search(Types.Search(include_all_writers=True, include_data=True).match(record_types=['move']))
         records = []
         for record in result.records:
-            print()
-            records.append(record)
+            records.append(record.to_json())
         return records
 
     def remove_all_records(self,shared_with: list=[]):
@@ -101,10 +83,12 @@ class Handler:
             -------  
                 * None
         '''
-        records = self.retrieve_all_records()
+        records = self.search_records()
+
         # revoke access from all parties the record is shared with
         for party in shared_with:
             self.client.revoke('move',party['client_id'])
         for rec in records:
-            self.client.delete(rec['record_id'],version=rec['version'])
+            self.client.delete(rec['meta']['record_id'],rec['meta']['version'])
         return
+    

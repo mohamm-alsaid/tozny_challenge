@@ -30,7 +30,6 @@ class Clients:
         self.all_clients = AllClients.__members__
         self.members = {}
         
-        print('---> ',creds_path)
         try:
             for client in self.all_clients:
                 # read member and their creds
