@@ -65,6 +65,7 @@ def display_records(handler,clients):
     submitted_moves = []
     if len(records) == 0:
         print('No records to display.')
+        
     # records = list(filter(lambda x: x['meta']['writer_id'],records))
     # df = pd.DataFrame(records)
     # df['writer_id'] = df['meta'].apply(lambda r: r['writer_id'])
@@ -73,6 +74,7 @@ def display_records(handler,clients):
     # df = df.drop(['meta','data'],axis=1)
     # df = df[['meta']['writer_id']]
     # print(df)
+
     for r in records:
         date = r['meta']['created'].split('.')[0]
         move = r['data']
@@ -119,7 +121,7 @@ def main():
     # specify args args
     parser = argparse.ArgumentParser(description='Rock, Paper, Scissors Game.')
     parser.add_argument('--client', type=str, help='Clients for this game: <clarence | alice | bruce>',default='clarence',required=True)
-    parser.add_argument('--creds', type=str, help='Relative path to creds directory (directory path with name)',default=None,required=True)
+    parser.add_argument('--creds', type=str, help='Relative path to creds directory (directory path with name)',default='./creds')
     parser.add_argument('--reset', type=bool, help='reset game (deletes all records of all previous rounds)',default=False)
     parser.add_argument('--display', type=bool, help='displays all records (written by an shared with) client',default=False)
     parser.add_argument('--declare', type=bool, help='Declare winner for round (only Clarence)',default=False)
@@ -144,8 +146,6 @@ def main():
     # ------------------- validate input ----------------- 
     # creds is not checked (could be validated by checking whether client's name is in the file path)
     # but this relies on naming the creds files such that they indicate which member keys belong to --> not sure its good
-
-    # @TODO: fix logic surrounding not submitting a move and only displaying things
     # Validate client option (running program as client is required)
     if not check_option_is_valid(client,possible_clients): 
         exit()
@@ -155,13 +155,6 @@ def main():
         if not check_option_is_valid(move,possible_moves):
             exit()
 
-    # ----------------------------------------------------
-    
-
-
-    # ------------- grab token from environment ----------
-    # key = 'TOZNY_TOKEN'
-    # token = os.getenv(key)
     # ----------------------------------------------------
     
     handler = Handler(clients.retrieve_client_creds(client))
