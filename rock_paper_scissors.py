@@ -1,7 +1,7 @@
 # Author: mohamm-alsaid
 # Date: 03/01/22
 
-import argparse
+import argparse, pandas as pd
 from clients import Clients,Moves
 from member_handler import Handler
 import os
@@ -57,18 +57,32 @@ def reset_game(clients):
     for client in clients.members:
         print('remove all records for: ',client)
         handler = Handler(clients.retrieve_client_creds(client))
-        handler.remove_all_records(shared_with=[clients.members['clarence']])
+        ids = list(map(clients.retrieve_client_creds,clients.members))
+        handler.remove_all_records(shared_with=ids)
 
-def display_records(handler):
+def display_records(handler,clients):
     records = handler.search_records()
     submitted_moves = []
     if len(records) == 0:
         print('No records to display.')
-
+    # records = list(filter(lambda x: x['meta']['writer_id'],records))
+    # df = pd.DataFrame(records)
+    # df['writer_id'] = df['meta'].apply(lambda r: r['writer_id'])
+    # df['writer_id'] = df['writer_id'].apply(lambda x: 'self' if x==handler.client.client_id else x)
+    # df['move'] = df['data'].apply(dict.values)
+    # df = df.drop(['meta','data'],axis=1)
+    # df = df[['meta']['writer_id']]
+    # print(df)
     for r in records:
-        writer = 'self' if handler.client.client_id == r['meta']['writer_id'] else r['meta']['writer_id']
-        move = r['data']['move']
-        print(f"({writer}) submitted:\t{move}")
+        date = r['meta']['created'].split('.')[0]
+        move = r['data']
+        writer = clients.reverse_lookup_client_id(r['meta']['writer_id'])
+        if 'winner' in move.keys() and move['winner'] == handler.client.client_id:
+            move['winner'] = 'self!'
+        elif 'winner' in move.keys():
+            move['winner'] = 'Other player :('
+        print(f"\n({date})\t@{writer}\n\tsubmitted:\t{move}")
+
         submitted_moves.append((writer,move))
     return submitted_moves
 def declare_winner(moves):
@@ -83,7 +97,8 @@ def declare_winner(moves):
         ------
             * ID of round winner
     '''
-    moves_dict = {k:v for k,v in moves}
+    print(moves)
+    moves_dict = {k:v['move'] for k,v in moves}
     
     # assume draw before starting
     winner = 'draw'     
@@ -156,21 +171,28 @@ def main():
         if client == 'clarence':
             print('Judge is not allowed to play.')
         else:
-            handler.submit_move(move,recipients=[ clients.retrieve_client_creds('clarence') ])
+            handler.submit_record({"move":move},recipients=[ clients.retrieve_client_creds('clarence') ])
 
     if display:
-        display_records(handler)
+        display_records(handler,clients)
 
     if declare:
         if not client == 'clarence':
             print(f"{client} not allowed to declare winner!")
         else:
-            moves = display_records(handler)
-            # print('---->',set(map(lambda x: x[0],moves)))
+            moves = display_records(handler,clients)
             # assert there are enough moves and each player has submitted a move 
             if len(moves) > 1 and len(set(map(lambda x: x[0],moves)))>1:
                 winner = declare_winner(moves)
-                print('winner: ',winner)
+                
+                # create record to declare winner shared with other players
+                record = {"winner": winner[0], "submitted move": winner[-1]}
+
+                # filter other players whom we shared records with (everyone but clarence)
+                share_with = list(map(clients.retrieve_client_creds,filter(lambda x: x != client, possible_clients.keys())))
+
+                print(record)
+                handler.submit_record({"round winner": winner[0],"submitted move":winner[-1]},share_with)
             else:
                 print("Not enough moves from all players")
 

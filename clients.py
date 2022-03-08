@@ -55,4 +55,9 @@ class Clients:
                 * dict of stored creds for the give client. 
         '''
         return self.members[client]
-
+    def reverse_lookup_client_id(self,client_id):
+        # self.members == 
+        for k,v in self.members.items():
+            if v['client_id'] == client_id: 
+                return k
+        return None

@@ -20,7 +20,7 @@ class Handler:
         self.client = e3db.Client(self.creds)
         return
     
-    def submit_move(self,move: str, recipients: list):
+    def submit_record(self, record: dict, recipients: list):
         '''
             Submits a move to each of the recipients as a note.
 
@@ -35,8 +35,6 @@ class Handler:
             -------
                 * None. 
         '''
-        # create record of move 
-        data = {"move":move}
 
         # # share record with recipients (try to if not shared previously)
         for recipient in recipients:
@@ -49,8 +47,8 @@ class Handler:
                 print('record type was already shared')
         
         # write record to server
-        result = self.client.write(data=data,record_type='move')
-        print('records was written to server successfully')
+        result = self.client.write(data=record,record_type='move')
+        print('records were written to server successfully')
         
         return  
 
@@ -89,6 +87,7 @@ class Handler:
         for party in shared_with:
             self.client.revoke('move',party['client_id'])
         for rec in records:
-            self.client.delete(rec['meta']['record_id'],rec['meta']['version'])
+            if rec['meta']['writer_id']==self.client.client_id:
+                self.client.delete(rec['meta']['record_id'],rec['meta']['version'])
         return
     
