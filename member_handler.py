@@ -99,12 +99,7 @@ def get_tozny_client_config(token=None,client=None):
         -----
             * config obj
     '''
-    # try loading client from disk
-    # try:
-    #     config = e3db.Config.load()
-    #     print('Loaded configs from disk successfully')
-    # except FileNotFoundError:
-        # assert we have needed params to register client
+    # assert we have needed params to register client
     assert not token is None, 'Token parameter is missing (None)! Needed for registration.'  
     assert not client is None, 'Client parameter is missing (None)! Needed for registration.'
     # generate pair
