@@ -1,6 +1,7 @@
+#! /bin/python3
+
 # Author: mohamm-alsaid
 # Date: 03/01/22
-
 import argparse, pandas as pd
 from clients import Clients,Moves
 from member_handler import Handler
@@ -86,9 +87,15 @@ def main():
     parser = argparse.ArgumentParser(description='Rock, Paper, Scissors Game.')
     parser.add_argument('--client', type=str, help='Clients for this game: <clarence | alice | bruce>',default='clarence',required=True)
     parser.add_argument('--creds', type=str, help='Relative path to creds directory (directory path with name)',default='./creds')
-    parser.add_argument('--reset', type=bool, help='reset game (deletes all records of all previous rounds)',default=False)
-    parser.add_argument('--display', type=bool, help='displays all records (written by an shared with) client',default=False)
-    parser.add_argument('--declare', type=bool, help='Declare winner for round (only Clarence)',default=False)
+    parser.add_argument('--reset', type=bool, 
+        help='reset game (deletes all records of all previous rounds)',
+        default=False,action=argparse.BooleanOptionalAction)
+    parser.add_argument('--display', type=bool, 
+        help='displays all records (written by an shared with) client',
+        default=False,action=argparse.BooleanOptionalAction)
+    parser.add_argument('--declare', type=bool, 
+        help='Declare winner for round (only Clarence)',
+        default=False,action=argparse.BooleanOptionalAction)
     # it is possible for a client not to make a move (check the game winner or any of the judge's actions)
     # so it doesn't need to be a required program argument
     parser.add_argument('--move', type=str, help='Make a move: <rock | paper | scissors>',default=None,required=False)
