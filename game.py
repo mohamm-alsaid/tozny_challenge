@@ -64,11 +64,53 @@ def declare_winner(moves):
     if v1==v2:
         return (winner,moves_dict[k1]) # both moves are the same
     else:
-        # pick winner
-        if v1 > v2 and (v1-v2) <= 1:
-            winner = k1
-        else:
-            winner = k2 
+        # pick winner (rock)
+        if v1 == 0: # rock
+            if v2 == 1: # paper 
+                winner = k2
+            elif v2 == 2: # scissor 
+                winner = k1
+            elif v2 == 3: # lizard 
+                winner = k1
+            elif v2 == 4: # spock
+                winner = k2
+        elif v1 == 1: # paper 
+            if v2 == 0: # rock
+                winner = k1
+            elif v2 == 2: # scissor
+                winner = k2
+            elif v2 == 3: # lizard
+                winner = k2
+            elif v2 == 4: # spock 
+                winner = k1
+        elif v1 == 2: # scissor 
+            if v2 == 0: # rock
+                winner = k2
+            elif v2 == 1: # paper
+                winner = k1
+            elif v2 == 3: # lizard
+                winner = k1
+            elif v2 == 4: # spock 
+                winner = k2
+        elif v1 == 3: # lizard 
+            if v2 == 0: # rock
+                winner = k2
+            elif v2 == 1: # paper
+                winner = k1
+            elif v2 == 2: # scissor
+                winner = k2
+            elif v2 == 4: # spock 
+                winner = k1
+        else: # spock 
+            if v2 == 0: # rock
+                winner = k1
+            elif v2 == 1: # paper
+                winner = k2
+            elif v2 == 2: # scissor
+                winner = k1
+            elif v2 == 3: # lizard
+                winner = k2
+
     return (winner,moves_dict[winner])
 
 def main():
