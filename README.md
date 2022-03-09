@@ -5,9 +5,9 @@ This is a Rock, Paper, Scissors game. It is a small project to experiment with d
 ---
 ## Set up
 The following two steps create __3__ clients (alicia, bruce, and clarence) and register them. 
-
-1. Ensure the token is exported. Use `export TOZNY_TOKEN='....your token...'` to export your token as an environment variable.
-2. Initialize environment, run init script `python3 init.py`
+1. Ensure all requirements are installed: `pip3 install -r requirements.txt`
+2. Ensure the token is exported. Use `export TOZNY_TOKEN='....your token...'` to export your token as an environment variable.
+3. Initialize environment, run init script `python3 init.py`
     * Or you can run it as executable: `chmod +x init.py && ./init.py`
 
 Their configuration (all __3__ of them) will be stored in the `./creds` directory (relative to the current directory).

@@ -2,7 +2,7 @@
 
 # Author: mohamm-alsaid
 # Date: 03/01/22
-import argparse, pandas as pd, os
+import argparse, os
 from clients import Clients,Moves
 from member_handler import Handler
 

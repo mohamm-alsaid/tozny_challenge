@@ -1,6 +1,4 @@
-import json, sys, datetime as dt, hashlib, time
-import e3db
-from uuid import uuid4
+import json, e3db
 from e3db import types as Types 
 
     
