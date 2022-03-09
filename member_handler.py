@@ -1,11 +1,7 @@
 import json, sys, datetime as dt, hashlib, time
 import e3db
 from uuid import uuid4
-from e3db import types as Types
-# from e3db.types import Search as S
-# from e3db_python import e3db 
-# from e3db import types as E3dbTypes
-# import e3db
+from e3db import types as Types 
 
     
 class Handler:

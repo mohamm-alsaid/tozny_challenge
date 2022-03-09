@@ -48,3 +48,7 @@ If changed into executable, it is less verbose: `./game.py --move scissors --cli
 * To change the game into executable, use: `chmod +x game.py`
 * One can then use the short examples above.
 
+## Resources
+[1]- [Tonzy's Python SDK](https://github.com/tozny/e3db-python/)
+
+[2]- [Tozny Dashboard](https://dashboard.tozny.com/register)

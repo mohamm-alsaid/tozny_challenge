@@ -2,11 +2,9 @@
 
 # Author: mohamm-alsaid
 # Date: 03/01/22
-import argparse, pandas as pd
+import argparse, pandas as pd, os
 from clients import Clients,Moves
 from member_handler import Handler
-import os
-# import e3db 
     
 def check_option_is_valid(option:str, options:dict):
     keys = list(options.keys())
@@ -29,15 +27,6 @@ def display_records(handler,clients):
     submitted_moves = []
     if len(records) == 0:
         print('No records to display.')
-        
-    # records = list(filter(lambda x: x['meta']['writer_id'],records))
-    # df = pd.DataFrame(records)
-    # df['writer_id'] = df['meta'].apply(lambda r: r['writer_id'])
-    # df['writer_id'] = df['writer_id'].apply(lambda x: 'self' if x==handler.client.client_id else x)
-    # df['move'] = df['data'].apply(dict.values)
-    # df = df.drop(['meta','data'],axis=1)
-    # df = df[['meta']['writer_id']]
-    # print(df)
 
     for r in records:
         date = r['meta']['created'].split('.')[0]
