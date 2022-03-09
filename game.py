@@ -41,7 +41,7 @@ def display_records(handler,clients):
         submitted_moves.append((writer,move))
     return submitted_moves
 
-def declare_winner(moves):
+def declare_winner(moves: list):
     '''
         Uses the submmited moves to decide who won the round. 
         Note: it uses the first submitted moves from each player ONLY
@@ -56,13 +56,15 @@ def declare_winner(moves):
     moves_dict = {k:v['move'] for k,v in moves}
     
     # assume draw before starting
-    winner = 'draw'     
+    winner = None    
     # only grab first two (there won't be any more since ID will be overwritten in case of collision)
+    if len(moves_dict) < 2:
+        return (winner,None)
     k1,k2 = list(moves_dict.keys())[:2]
     v1,v2 = Moves[moves_dict[k1]].value,Moves[moves_dict[k2]].value
     # draw case (not necessary but for readability)
     if v1==v2:
-        return (winner,moves_dict[k1]) # both moves are the same
+        return ('draw',moves_dict[k1]) # both moves are the same
     else:
         # pick winner
         if v1 > v2 and (v1-v2) <= 1:

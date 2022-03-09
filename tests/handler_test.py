@@ -52,14 +52,14 @@ class TestHandlerClass(unittest.TestCase):
             return_value = handler.submit_record(record,recipients=[])
         
         # give server time to propagate changes
-        time.sleep(.8)
+        time.sleep(1)
         records = handler.search_records()
         # assert submission took place
         self.assertEqual(len(records)>=num,True)
         handler.remove_all_records()
 
         # give server time to propagate changes
-        time.sleep(.8)
+        time.sleep(1)
         records = handler.search_records()
         for r in records:
             print(r['data'])
@@ -67,6 +67,7 @@ class TestHandlerClass(unittest.TestCase):
         # ------- test removing records with empty log -----------
         records = handler.search_records()
         self.assertEqual(len(records)==0,True)
+        return
     def test_remove_all_records_fail(self):
         record = {'data':'test'}
         clients = Clients()
@@ -84,4 +85,5 @@ class TestHandlerClass(unittest.TestCase):
         records = list(map(lambda x: x['data'],records))
         self.assertEqual(len(records)>= 1,True)
         self.assertEqual(record in records,True)
+        return
     # ---------------------------------------------------------------

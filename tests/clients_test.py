@@ -21,6 +21,7 @@ class TestClientsClass(unittest.TestCase):
         except KeyError:
             pass
         self.assertEqual(creds,None) # still remains None
+        return
 
     def test_retreive_creds_fail(self):
         clients_names = ('bruce','alicia')
@@ -31,6 +32,7 @@ class TestClientsClass(unittest.TestCase):
         with open(f'./creds/{clients_names[-1]}.json','r') as f:
             creds = json.load(f)
         self.assertNotEqual(creds,client_creds) # Obtains other client
+        return
 
     # ---------------------------------------------------------------
 
@@ -46,6 +48,7 @@ class TestClientsClass(unittest.TestCase):
             client = clients.retrieve_client_creds(name)
             returned_name = clients.reverse_lookup_client_id(client['client_id'])
             self.assertEqual(returned_name,name)
+        return
     def test_reverse_lookup_client_id_fail(self):
         clients = Clients()
         name = 'random'
@@ -59,6 +62,7 @@ class TestClientsClass(unittest.TestCase):
         self.assertNotEqual(returned_name,name)
         self.assertEqual(returned_name,None)
         self.assertEqual(creds,None)
+        return
     # -----------------------------------------------------------------
 
 class TestAllClientsClass(unittest.TestCase):
@@ -72,6 +76,7 @@ class TestAllClientsClass(unittest.TestCase):
             value = clients[names[i]].value
             self.assertEqual(exists,True)
             self.assertEqual(value,i)
+        return
     def test_clients_names_fail(self):
         clients = AllClients
         value = None
@@ -80,6 +85,7 @@ class TestAllClientsClass(unittest.TestCase):
         except (KeyError,ValueError):
             pass
         self.assertEqual(value,None)
+        return
 
     # ---------------------------------------------------------------
 
@@ -94,6 +100,7 @@ class TestMovesClass(unittest.TestCase):
             value = clients[test_moves_enum_success[i]].value
             self.assertEqual(exists,True)
             self.assertEqual(value,i)
+        return
     def test_moves_enum_success(self):
         moves = Moves
         value = None
@@ -102,5 +109,6 @@ class TestMovesClass(unittest.TestCase):
         except (KeyError,ValueError):
             pass
         self.assertEqual(value,None)
+        return
 
     # ---------------------------------------------------------------
