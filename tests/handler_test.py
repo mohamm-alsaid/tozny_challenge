@@ -3,7 +3,7 @@ from member_handler import *
 from clients import Clients, AllClients
 
 class TestHandlerClass(unittest.TestCase):
-    # ------------------test retrieve_client_creds-------------------
+    # ---------------------------------------------------------------
     def test_submit_retireve_record_success(self):
         unique_key = str(uuid.uuid4())
         record = {unique_key:'test'}
