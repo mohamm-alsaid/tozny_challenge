@@ -61,8 +61,7 @@ class TestHandlerClass(unittest.TestCase):
         # give server time to propagate changes
         time.sleep(1)
         records = handler.search_records()
-        for r in records:
-            print(r['data'])
+        
         self.assertEqual(len(records)==0,True)
         # ------- test removing records with empty log -----------
         records = handler.search_records()

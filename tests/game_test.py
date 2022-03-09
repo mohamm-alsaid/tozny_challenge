@@ -1,7 +1,7 @@
 import unittest, json, numpy as np, time
 from game import *
 
-class TestClientsClass(unittest.TestCase):
+class TestGame(unittest.TestCase):
     # -------------test check option is valid--------------
     def test_check_option_is_valid_success(self):
         options = {str(k):k for k in range(20)}
@@ -71,7 +71,6 @@ class TestClientsClass(unittest.TestCase):
         time.sleep(1) # too long for a unit test
         moves = clarence_handler.search_records()
         moves = display_records(clarence_handler,clients)
-        print(moves)
         winner = declare_winner(moves)
         self.assertEqual(winner[0],None)
         self.assertEqual(winner[-1],None)
