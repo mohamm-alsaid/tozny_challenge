@@ -1,5 +1,6 @@
 #! /bin/python
 import os, e3db, json
+from member_handler import get_tozny_client_config
 
 clients = ['alicia', 'bruce', 'clarence']
 directory = 'creds'
@@ -22,19 +23,13 @@ assert not token == None, "Token was not found in environment. Try exporting tok
 
 for client in clients:
     print(f'\ngenerating keypair for {client}...',end='')
-    public_key,private_key = e3db.Client.generate_keypair()
+    config = get_tozny_client_config(token,client)
     print('done')
-    client_info = e3db.Client.register(token, client, public_key)
-    config = e3db.Config(
-        client_info.client_id,
-        client_info.api_key_id,
-        client_info.api_secret,
-        public_key,
-        private_key
-    )
-    # config.write(profile='test.json')
+    
     fname = f"{client}.json"
-    config_dict = config.load()
+    
+    config_dict = config() # returns json
+    
     print(f'\nWriting {client} configurations to {directory}/{fname}...',end='')
     json.dump(config_dict,open(f"{client}.json",'w'),indent=4)
     print('done')

@@ -37,13 +37,13 @@ class Clients:
             for client in self.all_clients:
                 # read member and their creds
                 creds = json.load(open(f'{creds_path}/{client}.json','r'))
-                self.members[client] = creds
+                self.members[client.lower()] = creds
         except Exception as e:
             print('Issues opening a credentials file! Terminating...')
             print(e)
             return sys.exit(1)
         return
-    def retrieve_client_creds(self,client):
+    def retrieve_client_creds(self,client:str):
         '''
             Retrieves the credentials for the given client.
             Param
@@ -54,7 +54,7 @@ class Clients:
             ------
                 * dict of stored creds for the give client. 
         '''
-        return self.members[client]
+        return self.members[client.lower()]
     def reverse_lookup_client_id(self,client_id):
         # self.members == 
         for k,v in self.members.items():

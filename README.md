@@ -28,7 +28,3 @@ The followings are options or flags players can use to do various things in the 
     * Default is `./creds`
 ## Examples of how to run the program
 To run the program use: `python3 rock_paper_scissors.py --move rock --client alicia --creds ./.creds/alicia`
-
-@TODO:
-* Update second player sharing move with first player
-* Update submit_record to limit one record per player

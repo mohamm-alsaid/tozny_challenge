@@ -7,6 +7,7 @@ from e3db import types as Types
 # from e3db import types as E3dbTypes
 # import e3db
 
+    
 class Handler:
     def __init__(self,creds):
         '''
@@ -90,4 +91,42 @@ class Handler:
             if rec['meta']['writer_id']==self.client.client_id:
                 self.client.delete(rec['meta']['record_id'],rec['meta']['version'])
         return
+
+def get_tozny_client_config(token=None,client=None):
+    '''
+        loads or creates configs
+        param
+        -----
+            * token: token used to register client (in case it is new)
+            * client: client's name to use when registering client (in case it is new)
+        returns
+        -----
+            * config obj
+    '''
+    # try loading client from disk
+    # try:
+    #     config = e3db.Config.load()
+    #     print('Loaded configs from disk successfully')
+    # except FileNotFoundError:
+        # assert we have needed params to register client
+    assert not token is None, 'Token parameter is missing (None)! Needed for registration.'  
+    assert not client is None, 'Client parameter is missing (None)! Needed for registration.'
+    # generate pair
+    public_key,private_key = e3db.Client.generate_keypair()
+    # generate sign pair
+    public_sign_key,private_sign_key = e3db.Client.generate_signing_keypair()
+
+    # register client
+    client_info = e3db.Client.register(token, client, public_key) # trying w/o creating client via dashboard (to see value)
     
+    config = e3db.Config(
+        str(client_info.client_id),
+        client_info.api_key_id,
+        client_info.api_secret,
+        public_key, 
+        private_key,
+        public_signing_key = public_sign_key,
+        private_signing_key = private_sign_key
+    )
+
+    return config   

@@ -15,43 +15,6 @@ def check_option_is_valid(option:str, options:dict):
         print(f'Invalid program input. input: {option} possible options: {keys}')
     return option in keys
 
-def get_tozny_client_config(token=None,client=None):
-    '''
-        loads or creates configs
-        param
-        -----
-            * token: token used to register client (in case it is new)
-            * client: client's name to use when registering client (in case it is new)
-        returns
-        -----
-            * config obj
-    '''
-    # try loading client from disk
-    try:
-        config = e3db.Config.load()
-        print('Loaded configs from disk successfully')
-    except FileNotFoundError:
-        # assert we have needed params to register client
-        assert not token is None, 'Token parameter is missing (None)! Needed for registration.'  
-        assert not client is None, 'Client parameter is missing (None)! Needed for registration.'
-        # generate pair
-        public_key,private_key = e3db.Client.generate_keypair()
-
-        # register client
-        client_info = e3db.Client.register(token, client, public_key) # trying w/o creating client via dashboard (to see value)
-
-        config = e3db.Config(
-            client_info.client_id,
-            client_info.api_key_id,
-            client_info.api_secret,
-            public_key, 
-            private_key
-        )
-        # write to disk for future use
-        config.write()
-        print('Generate new configs successfully')
-    return config
-
 def reset_game(clients):
     print('-'*25,'\n')
     for client in clients.members:
@@ -87,6 +50,7 @@ def display_records(handler,clients):
 
         submitted_moves.append((writer,move))
     return submitted_moves
+
 def declare_winner(moves):
     '''
         Uses the submmited moves to decide who won the round. 
@@ -99,7 +63,6 @@ def declare_winner(moves):
         ------
             * ID of round winner
     '''
-    print(moves)
     moves_dict = {k:v['move'] for k,v in moves}
     
     # assume draw before starting
@@ -117,6 +80,7 @@ def declare_winner(moves):
         else:
             winner = k2 
     return (winner,moves_dict[winner])
+
 def main():
     # specify args args
     parser = argparse.ArgumentParser(description='Rock, Paper, Scissors Game.')
@@ -164,7 +128,20 @@ def main():
         if client == 'clarence':
             print('Judge is not allowed to play.')
         else:
-            handler.submit_record({"move":move},recipients=[ clients.retrieve_client_creds('clarence') ])
+            share_with = [clients.retrieve_client_creds('clarence')]
+            # not really in efficient but simplist way
+            records = display_records(handler,clients)
+            if len(records) < 1:
+                # check if other player has submitted a move
+                opponent_name = next(filter(lambda x: x!= client and x!='clarence',possible_clients.keys()))
+                opponent_handler = Handler(clients.retrieve_client_creds(opponent_name))
+                opponent_records = opponent_handler.search_records()
+                if len(opponent_records) > 0:
+                    share_with.append(clients.retrieve_client_creds(opponent_name))
+                # print(opponent_name,len(opponent_records))
+                handler.submit_record({"move":move},recipients=share_with)
+            else:
+                print('only 1 move per player is alowed (no overwritting)')
 
     if display:
         display_records(handler,clients)
@@ -176,16 +153,19 @@ def main():
             moves = display_records(handler,clients)
             # assert there are enough moves and each player has submitted a move 
             if len(moves) > 1 and len(set(map(lambda x: x[0],moves)))>1:
-                winner = declare_winner(moves)
-                
-                # create record to declare winner shared with other players
-                record = {"winner": winner[0], "submitted move": winner[-1]}
+                if len(set(map(lambda x: x[0],moves)))<=2:
+                    winner = declare_winner(moves)
+                    
+                    # create record to declare winner shared with other players
+                    record = {"winner": winner[0], "submitted move": winner[-1]}
 
-                # filter other players whom we shared records with (everyone but clarence)
-                share_with = list(map(clients.retrieve_client_creds,filter(lambda x: x != client, possible_clients.keys())))
+                    # filter other players whom we shared records with (everyone but clarence)
+                    share_with = list(map(clients.retrieve_client_creds,filter(lambda x: x != client, possible_clients.keys())))
 
-                print(record)
-                handler.submit_record({"round winner": winner[0],"submitted move":winner[-1]},share_with)
+                    print(record)
+                    handler.submit_record({"round winner": winner[0],"submitted move":winner[-1]},share_with)
+                else:
+                    print('Round winner has already been declared')
             else:
                 print("Not enough moves from all players")
 
