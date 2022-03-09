@@ -5,7 +5,7 @@
 import argparse, pandas as pd, os
 from clients import Clients,Moves
 from member_handler import Handler
-    
+
 def check_option_is_valid(option:str, options:dict):
     keys = list(options.keys())
     # avoid casing issues, lower everything

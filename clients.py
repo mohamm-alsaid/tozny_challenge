@@ -1,5 +1,6 @@
 from enum import Enum
 import json, sys
+
 class AllClients(Enum):
     '''
         Enum for the different possible clients. 
@@ -8,7 +9,7 @@ class AllClients(Enum):
     alicia = 0
     bruce = 1
     clarence = 2
-     
+
 class Moves(Enum):
     '''
         Enum for the different possible moves. 
@@ -17,9 +18,8 @@ class Moves(Enum):
     paper = 1
     scissors = 2
 
-
 class Clients:
-    def __init__(self,creds_path='./'):
+    def __init__(self,creds_path='./creds'):
         '''
         Idea: represents a single handler for different players
         Params
@@ -36,7 +36,8 @@ class Clients:
         try:
             for client in self.all_clients:
                 # read member and their creds
-                creds = json.load(open(f'{creds_path}/{client}.json','r'))
+                with open(f'{creds_path}/{client}.json','r') as fp:
+                    creds = json.load(fp)
                 self.members[client.lower()] = creds
         except Exception as e:
             print('Issues opening a credentials file! Terminating...')
