@@ -132,14 +132,18 @@ def main():
             if len(records) < 1:
                 # check if other player has submitted a move
                 opponent_name = next(filter(lambda x: x!= client and x!='clarence',possible_clients.keys()))
-                opponent_handler = Handler(clients.retrieve_client_creds(opponent_name))
-                opponent_records = opponent_handler.search_records()
-                if len(opponent_records) > 0:
-                    share_with.append(clients.retrieve_client_creds(opponent_name))
-                # print(opponent_name,len(opponent_records))
-                handler.submit_record({"move":move},recipients=share_with)
-            else:
-                print('only 1 move per player is alowed (no overwritting)')
+                opponent_id = clients.retrieve_client_id(opponent_name)
+                judge_id = clients.retrieve_client_id('clarence')
+                handler.submit_record({"move":move},[opponent_id,judge_id])
+            #     opponent_handler = Handler(clients.retrieve_client_creds(opponent_name))
+            #     opponent_records = opponent_handler.search_records()
+            #     if len(opponent_records) > 0:
+            #         share_with.append(clients.retrieve_client_creds(opponent_name))
+            #     # print(opponent_name,len(opponent_records))
+            #     handler.submit_record({"move":move},recipients=share_with)
+            # else:
+            #     print('only 1 move per player is alowed (no overwritting)')
+
 
     if display:
         display_records(handler,clients)

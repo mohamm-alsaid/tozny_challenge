@@ -33,11 +33,11 @@ class Handler:
 
         # # share record with recipients (try to if not shared previously)
         for recipient in recipients:
-            print(f"sharing record with {recipient['client_id']}....")
+            print(f"sharing record with {recipient}....")
 
             try:
                 # share with client
-                self.client.share(record_type='move',reader_id=recipient['client_id'])
+                self.client.share(record_type='move',reader_id=recipient)
             except e3db.exceptions.APIError as e:
                 print('record type was already shared')
         
